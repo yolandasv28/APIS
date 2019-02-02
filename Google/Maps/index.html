@@ -6,6 +6,7 @@
 	<!-- <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script> -->
 	<script src="https://www.gstatic.com/firebasejs/5.5.2/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/5.5.2/firebase-database.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/5.5.2/firebase-storage.js"></script>
 	<script type="text/javascript" src="./models/Cancha.js"></script>
 	<script type="text/javascript" src="./js/config.js"></script>
 	
@@ -16,7 +17,7 @@
 <body class="bg-dark">
 <!-- modales -->
 <div class="modal fade" id="crearModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
+		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="exampleModalLabel">Crear Canchita</h5>
@@ -25,21 +26,35 @@
 					</button>
 				</div>
 				<div class="modal-body">
+						<input type="text" id="inputBusqueda" placeholder="Ingrese una dirección"  >
 					<div id="mapaLatLng"></div>
 					<hr>
+					
 					<form>
-
+							
+							<div class="form-row">
+								<div class="col">								
+										<label for="inputNombre">Latitud:</label>
+										<input type="text" class="form-control" id="inputLatitud"  readonly>
+										<small  class="form-text text-muted">Latitud</small>
+								</div>
+								<div class="col">								
+										<label for="inputNombre">Longitud:</label>
+										<input type="text" class="form-control" id="inputLongitud"  readonly>
+										<small  class="form-text text-muted">Longitud</small>
+									</div>
+							</div>
 							<div class="form-group">
-								<label for="inputNombre">Nombre</label>
-								<input type="text" class="form-control" id="inputNombre"  placeholder="Ingrese el nombre">
-								<small  class="form-text text-muted">Nombre de la canchita</small>
+									<label for="inputNombre">Nombre</label>
+									<input type="text" class="form-control" id="inputNombre"  placeholder="Ingrese el nombre">
+									<small  class="form-text text-muted">Nombre de la canchita</small>
 							</div>
 							<div class="form-group">
 									<label for="inputDireccion">Dirección</label>
 									<input type="text" class="form-control" id="inputDireccion"  placeholder="Ingrese la dirección">
 									<small  class="form-text text-muted">Direccion de la canchita</small>
 							</div>
-						<div class="form-group">
+							<div class="form-group">
 									<label for="inputTelefono">Teléfono</label>
 									<input type="text" class="form-control" id="inputTelefono"  placeholder="Ingrese el numero de telefono">
 									<small  class="form-text text-muted">Direccion de la canchita</small>
@@ -97,7 +112,12 @@
 					<button class="btn-outline-success btn-block" id="btnPosicion">Mi Posicion</button>
 					<button class="btn-outline-danger btn-block" id="btnBorrarPosicion">Borrar mi Posicion</button>
 					<button class="btn-outline-primary btn-block" id="btnGetCanchas">Traer canchas</button>
-					<button class="btn btn-dark btn-block" data-toggle="modal" type="button" data-target="#crearModal">Traer canchas</button>
+					<button class="btn btn-dark btn-block" data-toggle="modal" type="button" 
+					data-target="#crearModal">Crear cancha</button>
+					<hr>
+					<input class="form-control mb-2" type="file" id="foto">
+					<button class="btn-outline-primary btn-block" id="btnSubirArchivo">Subir</button>
+
 				</div>
 				<div class="col-md-9">		
 				<div id="map"></div>
@@ -107,16 +127,13 @@
 
 		</div>
 	</div>
-
 	
     <script type="text/javascript" src="./js/mapas.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh7rSz7BbqbYOdUcy7t0GTNgCaUxVvNmU"
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh7rSz7BbqbYOdUcy7t0GTNgCaUxVvNmU&libraries=places"
 		async defer></script>
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-
-
 
 </body>
 </html>

@@ -3,30 +3,68 @@ window.addEventListener('load',function(){
 
   // firebase
   firebase.initializeApp(config);
+  //creando la referenci al storage de firebase
+  firebase.storage().ref();
   // variable de mapas
 
  var map; 
+ var mapLatLng;
+ 
  var marker;
+ var markerLatLng;
 
  var btnPosicion=document.getElementById('btnPosicion');
  var btnBorrarPosicion=document.getElementById("btnBorrarPosicion");
  var btnGetCanchas=document.getElementById("btnGetCanchas");
  var divCanchas=document.getElementById("canchas");
  var btnCrearCanchas=document.getElementById("btnCrearCanchas");
+ var inputLatitud=document.getElementById("inputLatitud");
+ var inputLongitud=document.getElementById("inputLongitud");
+ var btnSubirArchivo=document.getElementById("btnSubirArchivo");
  var canchasFirebase=[];
- var marcadorFirebase=[];
+ var marcadoresFirebase=[];
 
  var cargando=document.createElement("img");
  cargando.setAttribute("src","./img/cargando.gif");
+ 
 
  //1. crear la referencia al nodo en firebase
  var referencia=firebase.database().ref('canchitas');
+ //creando la referencia para firebase storage
+ var referenciaStorage=firebase.storage().ref();
+
+ btnSubirArchivo.addEventListener('click',()=>{
+   var inputPhoto=document.getElementById("photo");
+   var archivo=inputPhoto.files[0];
+   //asignando el nombre del archivo
+   //el simbolo + sirve para transformar a entero el contenido al que haga referencia 
+   var nombre=+(new Date())+'-'+archivo.name;
+   //creando la variable que indicara el tipode contenido que se envia la servidor
+   var metadata={
+     contentType: archivo.type
+
+   }
+
+   //promesa: espera a funciones asincronas
+
+   referenciaStorage.child(nombre).put(archivo,metadata)
+                                  .then((snapshot)=>{
+                                    return snapshot.ref.getDownloadURL()
+                                  }).then((url)=>{
+                                    console.log(url);
+                                  }).catch((error)=>{
+                                    console.log("error",error);
+                                  });
+   
+
+ });
 
  btnGetCanchas.addEventListener('click',()=>{
-  // //1. crear la referencia al nodo en firebase
-  //   var referencia=firebase.database().ref('canchitas');
-  //2. usar funcion de obtencion d eregistros[on, once]
-    referencia.once('value',(data)=>{
+      //1. crear la referencia al nodo en firebase
+      //   var referencia=firebase.database().ref('canchitas');
+      //2. usar funcion de obtencion d eregistros[on, once]
+      // ONCE:
+      // referencia.once('value',(data)=>{
       // console.log(data);
       // data.forEach((fila)=>{
       //   console.log(`ID ${fila.key}`);
@@ -35,9 +73,17 @@ window.addEventListener('load',function(){
       //   console.log("-------------------------------");
 
       // });
-      llenarcanchas(data);
-    })
 
+      //ON: TRAE LA DATA CADA VEZ QUE ESTA ES ALTERADA
+      divCanchas.innerHTML="";
+      divCanchas.append(cargando);
+      canchasFirebase=[];
+
+      referencia.on('value',(data)=>{
+      divCanchas.innerHTML="";
+      llenarcanchas(data);
+      canchasFirebase=[];
+    })
  });
 
  btnPosicion.addEventListener('click',()=>{
@@ -69,16 +115,60 @@ btnBorrarPosicion.addEventListener('click',()=>{
         });
       }
 
+  function initMapLatLng(){
+    mapLatLng = new google.maps.Map(document.getElementById("mapaLatLng"), {
+      // center: {lat: -34.397, lng: 150.644},
+      center:miPosicion,
+      zoom: 13
+    });
+
+    mapLatLng.addListener('click',(coors)=>{
+
+     
+      inputLatitud.setAttribute("value",coors.latLng.lat());
+      inputLongitud.setAttribute("value",coors.latLng.lng());
+      markerLatLng=new google.maps.Marker({
+        position:coors.latLng,
+        map:mapLatLng,
+        draggable:true,
+        icon:'./img/marcador.png'
+      })
+    });
+
+    var inputBusqueda=document.getElementById("inputBusqueda");
+    //Creando un elemento de busquea de Google maps
+    var searchBox=new google.maps.places.SearchBox(inputBusqueda);
+    //inyectando y posicionando un elemento dentro del mapa de google
+    mapLatLng.controls[google.maps.ControlPosition.TOP_LEFT].push(inputBusqueda);
+
+    // mapLatLng.addListener('bounds_changed',()=>{
+    //   searchBox.setBounds(mapLatLng.getBounds());
+    // });
+    searchBox.addListener("places_changed",()=>{
+      var places=searchBox.getPlaces();
+      if(places.length==0)
+      {
+        return;
+      }
+      places.forEach((place)=>{
+        console.log(place.geometry.location.lat());
+      });
+    });
+    
+  }
+
  let getLocation = ()=>{
  	if(navigator.geolocation){
  		//significa que el navegador tiene disponible la geolocalización
  		navigator.geolocation.getCurrentPosition((position)=>{
+       //se solicita al usuario permitir conocer su ubicacion
  			// console.log("latitud: "+position.coords.latitude);
  			// console.log("longitud: "+position.coords.longitude);
  			miPosicion.lat=position.coords.latitude;
  			miPosicion.lng=position.coords.longitude;
  			// map.setCenter(miPosicion);
- 			initMap();
+       initMap();
+       initMapLatLng();
  		},(error)=>{
  			console.log("error",error);
  		});	
@@ -110,7 +200,16 @@ btnBorrarPosicion.addEventListener('click',()=>{
       console.log(canchasFirebase);
       // creando la tabla de canchas
       let tabla=document.createElement("table");
+
       tabla.setAttribute('class','table');
+      let trCabecera=docuement.createElement("tr");
+      let thId=document.createElement("th");
+      let thNombre=document.createElement("th");
+      thId.innerHTML="ID";
+      thNombre.innerHTML="Nombre";
+      trCabecera.append(thId,thNombre);
+      tabla.append(trCabecera);
+
       canchasFirebase.forEach((cancha)=>{
 
         let tr=document.createElement("tr");
@@ -150,8 +249,12 @@ btnBorrarPosicion.addEventListener('click',()=>{
       direccion:$('#inputDireccion').val(),
       nombre:$('#inputNombre').val(),
       telefono:$('#inputTelefono').val(),
-      lat:-16.405600,
-      lng:-71.557362,
+      lat:$('#inputLatitud').val(),
+      lng:$('#inputLongitud').val(),
+    },(error)=>{
+      if(error){
+
+      }
     });
   })
       

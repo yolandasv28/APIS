@@ -47,15 +47,15 @@ window.addEventListener('load',function(){
 
    //promesa: espera a funciones asincronas
 
-   referenciaStorage.child(nombre).put(archivo,metadata)
-                                  .then((snapshot)=>{
+   referenciaStorage.child(nombre)
+                    .put(archivo,metadata)
+                    .then((snapshot)=>{
                                     return snapshot.ref.getDownloadURL()
                                   }).then((url)=>{
                                     console.log(url);
                                   }).catch((error)=>{
                                     console.log("error",error);
-                                  });
-   
+                                  });  
 
  });
 

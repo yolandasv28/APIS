@@ -21,8 +21,10 @@ window.addEventListener('load',function(){
  var inputLatitud=document.getElementById("inputLatitud");
  var inputLongitud=document.getElementById("inputLongitud");
  var btnSubirArchivo=document.getElementById("btnSubirArchivo");
+ var inputPhoto;
  var canchasFirebase=[];
  var marcadoresFirebase=[];
+ var urlPhoto;
 
  var cargando=document.createElement("img");
  cargando.setAttribute("src","./img/cargando.gif");
@@ -34,7 +36,7 @@ window.addEventListener('load',function(){
  var referenciaStorage=firebase.storage().ref();
 
  btnSubirArchivo.addEventListener('click',()=>{
-   var inputPhoto=document.getElementById("photo");
+   inputPhoto=document.getElementById("photo");
    var archivo=inputPhoto.files[0];
    //asignando el nombre del archivo
    //el simbolo + sirve para transformar a entero el contenido al que haga referencia 
@@ -53,11 +55,13 @@ window.addEventListener('load',function(){
                                     return snapshot.ref.getDownloadURL()
                                   }).then((url)=>{
                                     console.log(url);
+                                    urlPhoto=url;
                                   }).catch((error)=>{
                                     console.log("error",error);
                                   });  
 
  });
+
 
  btnGetCanchas.addEventListener('click',()=>{
       //1. crear la referencia al nodo en firebase
@@ -194,7 +198,8 @@ btnBorrarPosicion.addEventListener('click',()=>{
                               fila.val().lat,
                               fila.val().lng,
                               fila.val().nombre,
-                              fila.val().telefono));          
+                              fila.val().telefono,
+                              fila.val().img));          
       });
 
       console.log(canchasFirebase);
@@ -202,12 +207,14 @@ btnBorrarPosicion.addEventListener('click',()=>{
       let tabla=document.createElement("table");
 
       tabla.setAttribute('class','table');
-      let trCabecera=docuement.createElement("tr");
+      let trCabecera=document.createElement("tr");
       let thId=document.createElement("th");
       let thNombre=document.createElement("th");
+      let thImg=document.createElement("th");
       thId.innerHTML="ID";
       thNombre.innerHTML="Nombre";
-      trCabecera.append(thId,thNombre);
+      thImg.innerHTML="Imagen";
+      trCabecera.append(thId,thNombre,thImg);
       tabla.append(trCabecera);
 
       canchasFirebase.forEach((cancha)=>{
@@ -217,7 +224,12 @@ btnBorrarPosicion.addEventListener('click',()=>{
         tdId.innerHTML=cancha.id;
         let tdNombre=document.createElement("td");
         tdNombre.innerHTML=cancha.nombre;
-        tr.append(tdId,tdNombre);
+        
+        let tdImg=document.createElement("td");
+        let img=document.createElement("img");
+        img.setAttribute("src",cancha.img);
+        tdImg.append(img);
+        tr.append(tdId,tdNombre, tdImg);
         tabla.append(tr);
 
         //llenando marcadores en el mapa
@@ -241,6 +253,32 @@ btnBorrarPosicion.addEventListener('click',()=>{
   }
 
   btnCrearCanchas.addEventListener('click',()=>{
+
+  //   inputPhoto=document.getElementById("photo");
+  //  var archivo=inputPhoto.files[0];
+  //  //asignando el nombre del archivo
+  //  //el simbolo + sirve para transformar a entero el contenido al que haga referencia 
+  //  var nombre=+(new Date())+'-'+archivo.name;
+  //  //creando la variable que indicara el tipode contenido que se envia la servidor
+  //  var metadata={
+  //    contentType: archivo.type
+
+  //  }
+
+  //  //promesa: espera a funciones asincronas
+
+  //  referenciaStorage.child(nombre)
+  //                   .put(archivo,metadata)
+  //                   .then((snapshot)=>{
+  //                                   return snapshot.ref.getDownloadURL()
+  //                                 }).then((url)=>{
+  //                                   console.log(url);
+  //                                   urlPhoto=url;
+  //                                 }).catch((error)=>{
+  //                                   console.log("error",error);
+  //                                 });  
+
+
     //generando un id nuevo para la cancha
     const nuevakey=referencia.push().key;
     //funcion set en firebase
@@ -251,6 +289,7 @@ btnBorrarPosicion.addEventListener('click',()=>{
       telefono:$('#inputTelefono').val(),
       lat:$('#inputLatitud').val(),
       lng:$('#inputLongitud').val(),
+      img:urlPhoto
     },(error)=>{
       if(error){
 
